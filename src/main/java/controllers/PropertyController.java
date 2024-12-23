@@ -2,6 +2,7 @@ package com.realestate.app.controllers;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,53 +20,103 @@ import org.springframework.web.bind.annotation.RestController;
 import com.realestate.app.models.Property;
 import com.realestate.app.services.PropertyService;
 
+/**
+ * Controller class for handling CRUD operations related to properties.
+ */
 @RestController
 @RequestMapping("/api/properties")
 public class PropertyController {
+    
     @Autowired
     private PropertyService propertyService;
 
+    /**
+     * Creates a new property.
+     * 
+     * @param property The property to be created.
+     * @return A ResponseEntity containing the created property and the location of the new resource.
+     */
     @PostMapping
     public ResponseEntity<Property> createProperty(@Validated @RequestBody Property property) {
-        return new ResponseEntity<>(propertyService.createProperty(property), HttpStatus.CREATED);
-    }
-    
-    @GetMapping
-    public ResponseEntity<List<Property>> findAllProperties() {
-    	return ResponseEntity.ok(propertyService.findAll());
+        Property createdProperty = propertyService.createProperty(property);
+        return new ResponseEntity<>(createdProperty, HttpStatus.CREATED);
     }
 
+    /**
+     * Retrieves all properties.
+     * 
+     * @return A ResponseEntity containing a list of all properties.
+     */
+    @GetMapping
+    public ResponseEntity<List<Property>> findAllProperties() {
+        List<Property> properties = propertyService.findAll();
+        return properties.isEmpty() 
+            ? ResponseEntity.noContent().build() 
+            : ResponseEntity.ok(properties);
+    }
+
+    /**
+     * Retrieves a property by its ID.
+     * 
+     * @param id The ID of the property to be retrieved.
+     * @return A ResponseEntity containing the property if found, or a Not Found status if not found.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Property> getProperty(@PathVariable Long id) {
         return propertyService.findPropertyById(id)
             .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-    
 
+    /**
+     * Searches for properties based on the provided price range.
+     * 
+     * @param minPrice The minimum price for the search (optional).
+     * @param maxPrice The maximum price for the search (optional).
+     * @return A ResponseEntity containing a list of properties within the price range.
+     */
     @GetMapping("/search")
     public ResponseEntity<List<Property>> searchProperties(
         @RequestParam(required = false) BigDecimal minPrice,
         @RequestParam(required = false) BigDecimal maxPrice
     ) {
-        return ResponseEntity.ok(propertyService.findPropertiesByPriceRange(minPrice, maxPrice));
+        List<Property> properties = propertyService.findPropertiesByPriceRange(minPrice, maxPrice);
+        return properties.isEmpty() 
+            ? ResponseEntity.noContent().build() 
+            : ResponseEntity.ok(properties);
     }
-    
-    
+
+    /**
+     * Updates a property by its ID.
+     * 
+     * @param id The ID of the property to be updated.
+     * @param property The updated property information.
+     * @return A ResponseEntity containing the updated property.
+     * @throws Exception If the property cannot be updated.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Property> updateProperty(@PathVariable Long id, @Validated @RequestBody Property property) throws Exception {
-        // Update the property with the provided ID and information
-        Property updatedProperty = propertyService.updateProperty(id, property);
-        	return new ResponseEntity<>(updatedProperty, HttpStatus.OK);
-        
+        try {
+            Property updatedProperty = propertyService.updateProperty(id, property);
+            return new ResponseEntity<>(updatedProperty, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
-    
+
+    /**
+     * Deletes a property by its ID.
+     * 
+     * @param id The ID of the property to be deleted.
+     * @return A ResponseEntity indicating the result of the delete operation.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
-        propertyService.deleteProperty(id);
-        return ResponseEntity.noContent().build();
+        try {
+            propertyService.deleteProperty(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
-    
-    
-    
 }
