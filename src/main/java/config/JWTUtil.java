@@ -10,11 +10,18 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    // Secret key used to sign JWT
+    // Secret key used to sign JWT. Should be stored securely (e.g., environment variable).
     private final String SECRET_KEY = "YourSecureAndLongSecretKeyHere12345678901234567890";
+    
+    // Expiration time for the token (1 hour)
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
-    // Generate JWT token
+    /**
+     * Generates a JWT token based on the provided username.
+     *
+     * @param username The username to be set as the subject of the token.
+     * @return The generated JWT token.
+     */
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -24,32 +31,55 @@ public class JWTUtil {
                 .compact();
     }
 
-    // Validate JWT token
+    /**
+     * Validates the JWT token by checking its integrity and signature.
+     *
+     * @param token The JWT token to validate.
+     * @return true if the token is valid, false otherwise.
+     */
     public boolean validateToken(String token) {
         try {
+            // Parse the token to ensure it's valid
             Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token);
-            return true;
+            return true;  // Token is valid
         } catch (Exception e) {
-            return false;
+            // Log the error (optional)
+            return false;  // Token is invalid
         }
     }
 
-    // Get username from JWT token
+    /**
+     * Extracts the username from the JWT token.
+     *
+     * @param token The JWT token from which to extract the username.
+     * @return The username (subject) from the token.
+     */
     public String extractUsername(String token) {
         return extractClaims(token).getSubject();
     }
 
-    // Extract claims (like expiration date, subject, etc.)
+    /**
+     * Extracts claims (like expiration date, subject, etc.) from the JWT token.
+     *
+     * @param token The JWT token from which to extract claims.
+     * @return The claims contained within the token.
+     */
     private Claims extractClaims(String token) {
+        // Parse the token to get the claims
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // Check if the token is expired
+    /**
+     * Checks if the JWT token has expired.
+     *
+     * @param token The JWT token to check.
+     * @return true if the token has expired, false otherwise.
+     */
     public boolean isTokenExpired(String token) {
         return extractClaims(token).getExpiration().before(new Date());
     }
