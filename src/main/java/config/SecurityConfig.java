@@ -14,55 +14,72 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 
-import com.realestate.app.security.JWTUtil;
-
 @Configuration
 public class SecurityConfig {
 
-	@Autowired
-	private final JWTUtil jWTUtil;
+    // Inject the JWT utility class
+    @Autowired
+    private final JWTUtil jWTUtil;
 
-	public SecurityConfig(JWTUtil jWTUtil) {
-		this.jWTUtil = jWTUtil;
-	}
-	
+    public SecurityConfig(JWTUtil jWTUtil) {
+        this.jWTUtil = jWTUtil;
+    }
+    
+    /**
+     * Bean for password encoding using BCrypt.
+     *
+     * @return PasswordEncoder instance for password encoding.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Bean for AuthenticationManager used for authenticating requests.
+     *
+     * @param config AuthenticationConfiguration to build the manager.
+     * @return AuthenticationManager instance.
+     * @throws Exception If any error occurs during configuration.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Configures HTTP security, including endpoints, filters, and exception handling.
+     *
+     * @param http HttpSecurity instance used for configuring HTTP security.
+     * @return SecurityFilterChain with configured security settings.
+     * @throws Exception If any error occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/register", "/auth/login", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jWTUtil), UsernamePasswordAuthenticationFilter.class)
+                .requestMatchers("/auth/register", "/auth/login", "/css/**", "/js/**", "/images/**").permitAll()  // Allow unauthenticated access to specific routes
+                .anyRequest().authenticated()  // All other requests require authentication
             )
-            .csrf().disable()
+            .csrf().disable()  // Disable CSRF protection (may want to enable for certain use cases)
             .exceptionHandling(exception -> exception
                 .defaultAuthenticationEntryPointFor(
-                    new Http403ForbiddenEntryPoint(), // Returns 403 for AJAX requests
+                    new Http403ForbiddenEntryPoint(), // Return 403 for AJAX requests
                     new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest")
                 )
                 .defaultAuthenticationEntryPointFor(
-                    new BasicAuthenticationEntryPoint(), // Default for non-AJAX requests
+                    new BasicAuthenticationEntryPoint(), // Default entry point for non-AJAX requests
                     request -> true // Match all other requests
                 )
             )
-            .httpBasic()
+            .httpBasic()  // Enable basic HTTP authentication
             .and()
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .invalidateHttpSession(true)
-            );
+                .logoutUrl("/logout")  // Specify logout URL
+                .logoutSuccessUrl("/login?logout")  // Redirect to login page after logout
+                .invalidateHttpSession(true)  // Invalidate the session upon logout
+            )
+            .addFilterBefore(new JwtAuthenticationFilter(jWTUtil), UsernamePasswordAuthenticationFilter.class);  // Add JWT filter before the authentication filter
         return http.build();
     }
 }
