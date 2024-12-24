@@ -9,6 +9,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Entity class representing an agent in the real estate system.
+ * This class maps to the "agents" table in the database.
+ */
 @Entity
 @Table(name = "agents")
 public class Agent {
@@ -35,74 +39,159 @@ public class Agent {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-	public Long getId() {
-		return id;
-	}
+    /**
+     * Gets the ID of the agent.
+     * 
+     * @return the ID of the agent.
+     */
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Sets the ID of the agent.
+     * 
+     * @param id the ID of the agent.
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    /**
+     * Gets the first name of the agent.
+     * 
+     * @return the first name of the agent.
+     */
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    /**
+     * Sets the first name of the agent.
+     * 
+     * @param firstName the first name of the agent.
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    /**
+     * Gets the last name of the agent.
+     * 
+     * @return the last name of the agent.
+     */
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    /**
+     * Sets the last name of the agent.
+     * 
+     * @param lastName the last name of the agent.
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    /**
+     * Gets the email of the agent.
+     * 
+     * @return the email of the agent.
+     */
+    public String getEmail() {
+        return email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    /**
+     * Sets the email of the agent.
+     * 
+     * @param email the email of the agent.
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getPhone() {
-		return phone;
-	}
+    /**
+     * Gets the phone number of the agent.
+     * 
+     * @return the phone number of the agent.
+     */
+    public String getPhone() {
+        return phone;
+    }
 
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+    /**
+     * Sets the phone number of the agent.
+     * 
+     * @param phone the phone number of the agent.
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-	public String getBio() {
-		return bio;
-	}
+    /**
+     * Gets the biography of the agent.
+     * 
+     * @return the biography of the agent.
+     */
+    public String getBio() {
+        return bio;
+    }
 
-	public void setBio(String bio) {
-		this.bio = bio;
-	}
+    /**
+     * Sets the biography of the agent.
+     * 
+     * @param bio the biography of the agent.
+     */
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
-	public String getLicenseNumber() {
-		return licenseNumber;
-	}
+    /**
+     * Gets the license number of the agent.
+     * 
+     * @return the license number of the agent.
+     */
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
 
-	public void setLicenseNumber(String licenseNumber) {
-		this.licenseNumber = licenseNumber;
-	}
+    /**
+     * Sets the license number of the agent.
+     * 
+     * @param licenseNumber the license number of the agent.
+     */
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    /**
+     * Gets the creation timestamp of the agent record.
+     * 
+     * @return the creation timestamp of the agent record.
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    /**
+     * Sets the creation timestamp of the agent record.
+     * 
+     * @param createdAt the creation timestamp of the agent record.
+     */
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	@Override
-	public String toString() {
-		return "Agent [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", phone=" + phone + ", bio=" + bio + ", licenseNumber=" + licenseNumber + ", createdAt=" + createdAt
-				+ "]";
-	}
+    /**
+     * Returns a string representation of the Agent object.
+     * 
+     * @return a string representation of the Agent object.
+     */
+    @Override
+    public String toString() {
+        return "Agent [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+                + ", phone=" + phone + ", bio=" + bio + ", licenseNumber=" + licenseNumber + ", createdAt=" + createdAt
+                + "]";
+    }
 }
