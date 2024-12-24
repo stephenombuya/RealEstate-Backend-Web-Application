@@ -11,32 +11,63 @@ import com.realestate.app.repositories.ListingRepository;
 
 import jakarta.transaction.Transactional;
 
+/**
+ * Service class that provides CRUD operations for {@link Listing} entities.
+ * It interacts with the {@link ListingRepository} to perform actions on listings.
+ */
 @Service
 public class ListingService {
     @Autowired
     private ListingRepository listingRepository;
 
+    /**
+     * Creates and saves a new listing.
+     *
+     * @param listing the listing to be created
+     * @return the saved listing entity
+     */
     @Transactional
     public Listing createListing(Listing listing) {
         return listingRepository.save(listing);
     }
 
+    /**
+     * Retrieves a list of featured listings.
+     *
+     * @return a list of featured listings
+     */
     public List<Listing> findFeaturedListings() {
         return listingRepository.findByIsFeaturedTrue();
     }
 
-    // Method to get all listings
+    /**
+     * Retrieves all listings.
+     *
+     * @return a list of all listings
+     */
     public List<Listing> getAllListings() {
         return listingRepository.findAll();
     }
 
-    // Method to find a listing by ID
+    /**
+     * Retrieves a listing by its ID.
+     *
+     * @param id the ID of the listing
+     * @return the found listing
+     * @throws RuntimeException if no listing is found with the given ID
+     */
     public Listing findListingById(Long id) {
         Optional<Listing> listing = listingRepository.findById(id);
         return listing.orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
     }
 
-    // Method to update a listing
+    /**
+     * Updates an existing listing with new details.
+     *
+     * @param id the ID of the listing to be updated
+     * @param updatedListing the updated listing details
+     * @return the updated listing entity
+     */
     @Transactional
     public Listing updateListing(Long id, Listing updatedListing) {
         Listing existingListing = findListingById(id);
@@ -48,7 +79,12 @@ public class ListingService {
         return listingRepository.save(existingListing);
     }
 
-    // Method to delete a listing
+    /**
+     * Deletes a listing by its ID.
+     *
+     * @param id the ID of the listing to be deleted
+     * @throws RuntimeException if no listing is found with the given ID
+     */
     @Transactional
     public void deleteListing(Long id) {
         Listing listing = findListingById(id);
