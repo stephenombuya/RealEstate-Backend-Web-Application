@@ -12,67 +12,134 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Represents a property listed in the real estate application.
+ * Includes details such as title, description, price, type, status, and location.
+ */
 @Entity
 @Table(name = "properties")
 public class Property {
+
+    /**
+     * The unique identifier for the property.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * The title of the property.
+     */
     @Column(nullable = false)
     private String title;
 
+    /**
+     * A detailed description of the property.
+     */
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    /**
+     * The price of the property.
+     */
     @Column(nullable = false)
     private BigDecimal price;
 
+    /**
+     * The type of the property (e.g., Residential, Commercial, Land).
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PropertyType propertyType;
 
+    /**
+     * The current status of the property (e.g., Available, Sold, Pending).
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PropertyStatus status;
-    
+
+    /**
+     * Enumeration for the type of property.
+     */
     public enum PropertyType {
         RESIDENTIAL,
         COMMERCIAL,
         LAND
     }
 
+    /**
+     * Enumeration for the status of the property.
+     */
     public enum PropertyStatus {
         AVAILABLE,
         SOLD,
         PENDING
     }
 
+    /**
+     * The square footage of the property.
+     */
     private Integer squareFeet;
+
+    /**
+     * The number of bedrooms in the property.
+     */
     private Integer bedrooms;
+
+    /**
+     * The number of bathrooms in the property.
+     */
     private Double bathrooms;
 
+    /**
+     * The address of the property.
+     */
     @Column(nullable = false)
     private String address;
 
+    /**
+     * The city where the property is located.
+     */
     @Column(nullable = false)
     private String city;
 
+    /**
+     * The state where the property is located.
+     */
     @Column(nullable = false)
     private String state;
 
+    /**
+     * The ZIP code of the property location.
+     */
     @Column(nullable = false)
     private String zipCode;
 
+    /**
+     * The latitude of the property location.
+     */
     private Double latitude;
+
+    /**
+     * The longitude of the property location.
+     */
     private Double longitude;
 
+    /**
+     * The timestamp when the property was created.
+     */
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    /**
+     * The timestamp when the property was last updated.
+     */
     private LocalDateTime updatedAt;
 
-	public Long getId() {
+    // Getters and Setters
+
+    public Long getId() {
 		return id;
 	}
 
@@ -207,16 +274,15 @@ public class Property {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-
-	@Override
-	public String toString() {
-		return "Property [id=" + id + ", title=" + title + ", description=" + description + ", price=" + price
-				+ ", propertyType=" + propertyType + ", status=" + status + ", squareFeet=" + squareFeet + ", bedrooms="
-				+ bedrooms + ", bathrooms=" + bathrooms + ", address=" + address + ", city=" + city + ", state=" + state
-				+ ", zipCode=" + zipCode + ", latitude=" + latitude + ", longitude=" + longitude + ", createdAt="
-				+ createdAt + ", updatedAt=" + updatedAt + "]";
-	}
-
 	
-	
+    // Other methods (e.g., toString)
+
+    @Override
+    public String toString() {
+        return "Property [id=" + id + ", title=" + title + ", description=" + description + ", price=" + price
+                + ", propertyType=" + propertyType + ", status=" + status + ", squareFeet=" + squareFeet + ", bedrooms="
+                + bedrooms + ", bathrooms=" + bathrooms + ", address=" + address + ", city=" + city + ", state=" + state
+                + ", zipCode=" + zipCode + ", latitude=" + latitude + ", longitude=" + longitude + ", createdAt="
+                + createdAt + ", updatedAt=" + updatedAt + "]";
+    }
 }
