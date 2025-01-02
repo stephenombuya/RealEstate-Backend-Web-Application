@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.realestate.app.exceptionHandlers.AgentNotFoundException;
 import com.realestate.app.exceptionHandlers.ErrorResponse;
-import com.realestate.app.services.AgentService;
 import com.realestate.app.models.Agent;
+import com.realestate.app.services.AgentService;
+import com.realestate.app.services.EmailService;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,6 +37,9 @@ public class AgentController {
     @Autowired
     private AgentService agentService;
 
+    @Autowired
+    private EmailService emailService;
+    
     /**
      * Registers a new agent with their details.
      * 
@@ -52,6 +57,14 @@ public class AgentController {
         try {
             // Create a new agent instead of updating
             Agent createdAgent = agentService.createAgent(agent);
+            
+         // Send email notification
+            String subject = "Welcome to Our Real Estate App!";
+            String body = "Dear " + agent.getFirstName() + ",\n\n" +
+                    "Thank you for registering with us.\n\n" +
+                    "Best Regards,\nReal Estate Team";
+            emailService.sendEmail(agent.getEmail(), subject, body);
+
             return new ResponseEntity<>(createdAgent, HttpStatus.CREATED);
         } catch (Exception e) {
             // Handle specific exception for duplicate username
@@ -65,6 +78,7 @@ public class AgentController {
      * @return A ResponseEntity containing a list of all agents.
      */
     @GetMapping
+    @RateLimiter(name = "getAllAgents", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<List<Agent>> getAllAgents() {
         try {
             List<Agent> agents = agentService.getAllAgents();
@@ -81,6 +95,7 @@ public class AgentController {
      * @return A ResponseEntity containing the agent or a 404 Not Found if not found.
      */
     @GetMapping("/email/{email}")
+    @RateLimiter(name = "getAgentByEmail", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Agent> getAgentByEmail(@PathVariable String email) {
         Optional<Agent> agentOptional = Optional.ofNullable(agentService.findAgentByEmail(email));
         return agentOptional
@@ -146,6 +161,12 @@ public class AgentController {
             // Return a general error if any other exception occurs
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    
+    // Fallback method
+    public ResponseEntity<Object> rateLimiterFallback(Exception ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body("Rate limit exceeded. Please try again later.");
     }
 
 }
