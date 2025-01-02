@@ -18,6 +18,7 @@ import com.realestate.app.models.JwtResponse;
 import com.realestate.app.models.User;
 import com.realestate.app.repositories.UserRepository;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -66,6 +67,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "User found"),
         @ApiResponse(responseCode = "401", description = "Invalid username or password")
     })
+    @RateLimiter(name = "loginRateLimiter", fallbackMethod = "loginFallback")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
         try {
             // Authenticate the user using the AuthenticationManager
@@ -107,6 +109,7 @@ public class AuthController {
         @ApiResponse(responseCode = "201", description = "User registered successfully"),
         @ApiResponse(responseCode = "400", description = "Username already taken")
     })
+    @RateLimiter(name = "registerRateLimiter", fallbackMethod = "registerFallback")
     public ResponseEntity<?> register(@RequestBody User userRequest) {
         try {
             // Check if the username is already taken
@@ -125,5 +128,14 @@ public class AuthController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during registration");
         }
+    }
+    
+ // Fallback methods for rate limiting
+    public ResponseEntity<?> loginFallback(User loginRequest, Throwable t) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many login attempts. Please try again later.");
+    }
+
+    public ResponseEntity<?> registerFallback(User userRequest, Throwable t) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts. Please try again later.");
     }
 }
