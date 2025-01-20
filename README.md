@@ -1,6 +1,21 @@
 # **Real Estate Back-End Web Application**
 A robust and scalable back-end application designed for managing real estate properties, agents, and their interactions. Built with Java, Spring Boot, and MySQL, this project incorporates modern technologies to deliver a seamless experience for administrators and users.
 
+![Real Estate](https://img.shields.io/badge/Real%20Estate-App-blue)
+![Java](https://img.shields.io/badge/Java-11%2B-red)
+![JWT](https://img.shields.io/badge/JWT-JSON%20Web%20Token-blue)
+![Docker](https://img.shields.io/badge/Docker-20%2B-blue)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.0%2B-green)
+![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-2.0%2B-orange)
+![Spring Validation](https://img.shields.io/badge/Spring%20Validation-5.0%2B-blue)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-5.0%2B-blue)
+![Swagger](https://img.shields.io/badge/Swagger-3.0%2B-blue)
+![Prometheus](https://img.shields.io/badge/Prometheus-2.0%2B-blue)
+![Spring Mail](https://img.shields.io/badge/Spring%20Mail-1.0%2B-green)
+![Resilience4j](https://img.shields.io/badge/Resilience4j-1.0%2B-green)
+![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue)
+![AWS](https://img.shields.io/badge/AWS-2.0%2B-orange)
+
 ### **Table of Contents**
 - Features
 - Technologies Used
