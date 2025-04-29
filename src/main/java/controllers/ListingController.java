@@ -20,6 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.realestate.app.models.Listing;
 import com.realestate.app.services.ListingService;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+
 /**
  * Controller class for handling CRUD operations related to real estate listings.
  */
@@ -32,11 +34,9 @@ public class ListingController {
 
     /**
      * Creates a new real estate listing.
-     * 
-     * @param listing The listing to be created.
-     * @return A ResponseEntity containing the created listing and the location of the new resource.
      */
     @PostMapping
+    @RateLimiter(name = "writeOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Listing> createListing(@Validated @RequestBody Listing listing) {
         Listing createdListing = listingService.createListing(listing);
 
@@ -51,10 +51,9 @@ public class ListingController {
 
     /**
      * Retrieves all real estate listings.
-     * 
-     * @return A ResponseEntity containing a list of all listings or a No Content status if empty.
      */
     @GetMapping
+    @RateLimiter(name = "searchOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<List<Listing>> getAllListings() {
         List<Listing> listings = listingService.getAllListings();
         return listings.isEmpty() 
@@ -64,10 +63,9 @@ public class ListingController {
 
     /**
      * Retrieves all featured listings.
-     * 
-     * @return A ResponseEntity containing a list of featured listings or a No Content status if empty.
      */
     @GetMapping("/featured")
+    @RateLimiter(name = "searchOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<List<Listing>> getFeaturedListings() {
         List<Listing> featuredListings = listingService.findFeaturedListings();
         return featuredListings.isEmpty() 
@@ -77,11 +75,9 @@ public class ListingController {
 
     /**
      * Retrieves a real estate listing by its ID.
-     * 
-     * @param id The ID of the listing to be retrieved.
-     * @return A ResponseEntity containing the listing if found, or a Not Found status if not found.
      */
     @GetMapping("/{id}")
+    @RateLimiter(name = "standardApi", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Listing> getListingById(@PathVariable Long id) {
         try {
             Listing listing = listingService.findListingById(id);
@@ -93,12 +89,9 @@ public class ListingController {
 
     /**
      * Updates a real estate listing by its ID.
-     * 
-     * @param id The ID of the listing to be updated.
-     * @param listingDetails The new details for the listing.
-     * @return A ResponseEntity containing the updated listing if successful, or a Not Found status if the listing doesn't exist.
      */
     @PutMapping("/{id}")
+    @RateLimiter(name = "writeOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Listing> updateListing(
         @PathVariable Long id, 
         @Validated @RequestBody Listing listingDetails
@@ -113,11 +106,9 @@ public class ListingController {
 
     /**
      * Deletes a real estate listing by its ID.
-     * 
-     * @param id The ID of the listing to be deleted.
-     * @return A ResponseEntity indicating the result of the delete operation.
      */
     @DeleteMapping("/{id}")
+    @RateLimiter(name = "criticalOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Void> deleteListing(@PathVariable Long id) {
         try {
             listingService.deleteListing(id);
@@ -125,5 +116,13 @@ public class ListingController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+    
+    /**
+     * Fallback method for rate-limited endpoints
+     */
+    public ResponseEntity<Object> rateLimiterFallback(Exception ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body("Rate limit exceeded. Please try again later.");
     }
 }
