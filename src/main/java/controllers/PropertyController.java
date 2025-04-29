@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.realestate.app.models.Property;
 import com.realestate.app.services.PropertyService;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+
 /**
  * Controller class for handling CRUD operations related to properties.
  */
@@ -37,6 +39,7 @@ public class PropertyController {
      * @return A ResponseEntity containing the created property and the location of the new resource.
      */
     @PostMapping
+    @RateLimiter(name = "writeOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Property> createProperty(@Validated @RequestBody Property property) {
         Property createdProperty = propertyService.createProperty(property);
         return new ResponseEntity<>(createdProperty, HttpStatus.CREATED);
@@ -48,6 +51,7 @@ public class PropertyController {
      * @return A ResponseEntity containing a list of all properties.
      */
     @GetMapping
+    @RateLimiter(name = "searchOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<List<Property>> findAllProperties() {
         List<Property> properties = propertyService.findAll();
         return properties.isEmpty() 
@@ -62,6 +66,7 @@ public class PropertyController {
      * @return A ResponseEntity containing the property if found, or a Not Found status if not found.
      */
     @GetMapping("/{id}")
+    @RateLimiter(name = "standardApi", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Property> getProperty(@PathVariable Long id) {
         return propertyService.findPropertyById(id)
             .map(ResponseEntity::ok)
@@ -76,6 +81,7 @@ public class PropertyController {
      * @return A ResponseEntity containing a list of properties within the price range.
      */
     @GetMapping("/search")
+    @RateLimiter(name = "searchOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<List<Property>> searchProperties(
         @RequestParam(required = false) BigDecimal minPrice,
         @RequestParam(required = false) BigDecimal maxPrice
@@ -95,6 +101,7 @@ public class PropertyController {
      * @throws Exception If the property cannot be updated.
      */
     @PutMapping("/{id}")
+    @RateLimiter(name = "writeOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Property> updateProperty(@PathVariable Long id, @Validated @RequestBody Property property) throws Exception {
         try {
             Property updatedProperty = propertyService.updateProperty(id, property);
@@ -111,6 +118,7 @@ public class PropertyController {
      * @return A ResponseEntity indicating the result of the delete operation.
      */
     @DeleteMapping("/{id}")
+    @RateLimiter(name = "criticalOperations", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
         try {
             propertyService.deleteProperty(id);
@@ -119,4 +127,13 @@ public class PropertyController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+    
+	/*
+	 * 
+	 * Fallback method for all rate-limited endpoints
+	 */
+	 public ResponseEntity<?> rateLimiterFallback(Throwable t) {
+	     return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+	         .body("Too many requests. Please slow down and try again.");
+	 }
 }
